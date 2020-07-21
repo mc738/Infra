@@ -1,4 +1,7 @@
-$HEADER$namespace $NAMESPACE$
+namespace Infra
 {
-  public class $CLASS$ {$END$}
+    public class BaseEntity
+    {
+        public  int Id { get; set; }
+    }
 }

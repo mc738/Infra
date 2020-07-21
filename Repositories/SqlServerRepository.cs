@@ -6,18 +6,19 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Infra.Repositories
 {
-    public class SQLServerRepository<T> where T : BaseEntity
+    public class SqlServerRepository<T>
+        : IRepository<T> where T : BaseEntity
     {
         private readonly DbSet<T> set;
 
-        public SQLServerRepository(DbSet<T> set)
+        public SqlServerRepository(DbSet<T> set)
         {
             this.set = set;
         }
 
         public async Task<T> Get(ISpecification<T> specification)
         {
-            return await SpecificationEvaluator<T>.GetQuery(set, specification).FirstOrDefaultAsync();
+            return await GetQuery(specification).FirstOrDefaultAsync();
         }
 
         public async Task<IEnumerable<T>> GetCollection(ISpecification<T> specification)
@@ -30,9 +31,14 @@ namespace Infra.Repositories
             await set.AddAsync(item);
         }
 
+        public void Delete(T item)
+        {
+            set.Remove(item);
+        }
+
         private IQueryable<T> GetQuery(ISpecification<T> specification)
         {
-            var query = set;
+            var query = set.AsQueryable();
 
             // modify the IQueryable using the specification's criteria expression
             if (specification.Criteria != null)
@@ -69,6 +75,7 @@ namespace Infra.Repositories
                 query = query.Skip(specification.Skip)
                     .Take(specification.Take);
             }
+
             return query;
         }
     }
